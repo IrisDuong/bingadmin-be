@@ -4,6 +4,8 @@ import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
 
+import javax.security.sasl.AuthenticationException;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -77,20 +79,23 @@ public class JwtToken {
 		 } catch (SignatureException e) {
 	            // Chữ ký không hợp lệ
 			 log.error(String.format("[JWT-TOKEN-ERROR] :: %s", e.getMessage()));
+			 throw e;
         } catch (MalformedJwtException e) {
             // Token sai định dạng
 			 log.error(String.format("[JWT-TOKEN-ERROR] :: %s", e.getMessage()));
+			 throw e;
         } catch (ExpiredJwtException e) {
             // Token hết hạn
 			 log.error(String.format("[JWT-TOKEN-ERROR] :: %s", e.getMessage()));
-//			 throw e;
+			 throw e;
         } catch (UnsupportedJwtException e) {
             // Token không hỗ trợ
 			 log.error(String.format("[JWT-TOKEN-ERROR] :: %s", e.getMessage()));
+			 throw e;
         } catch (IllegalArgumentException e) {
             // Claims string trống
 			 log.error(String.format("[JWT-TOKEN-ERROR] :: %s", e.getMessage()));
+			 throw e;
         }
-		return false;
 	}
 }

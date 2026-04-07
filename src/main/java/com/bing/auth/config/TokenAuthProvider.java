@@ -2,8 +2,11 @@ package com.bing.auth.config;
 
 import java.util.List;
 
+
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -11,10 +14,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
 import org.springframework.stereotype.Component;
 
+import com.bing.utils.eums.HttpErrorCode;
 import com.bing.utils.eums.TokenType;
+import com.bing.utils.exception.BaseException;
 import com.bing.utils.func.CommonUtils;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -30,6 +37,7 @@ public class TokenAuthProvider implements AuthenticationProvider{
 			return new UsernamePasswordAuthenticationToken(sub, null,List.of(new SimpleGrantedAuthority("ROLE_USER")));
 		}
 		return null;
+		
 	}
 
 	@Override
