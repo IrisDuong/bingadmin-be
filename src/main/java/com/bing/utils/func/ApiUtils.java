@@ -11,7 +11,7 @@ public class ApiUtils <T>{
 		super();
 	}
 
-	public <T> ResponseEntity<ApiResponse<T>> buildApiResponse(T data, HttpStatus httpStatus, String message){
+	public static <T> ResponseEntity<ApiResponse<T>> buildApiResponse(T data, HttpStatus httpStatus, String message){
 		ApiResponse<T> response = ApiResponse.<T>builder()
 				.data(data)
 				.httpStatusCode(httpStatus.value())
