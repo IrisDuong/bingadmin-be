@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.stereotype.Component;
 
-import com.bing.utils.eums.AppHeader;
+import com.bing.utils.eums.CustomHttpHeader;
 import com.bing.utils.func.CommonUtils;
 import com.bing.utils.func.TokenUtils;
 
@@ -18,7 +18,7 @@ public class TokenResolver implements BearerTokenResolver{
 
 	@Override
 	public String resolve(HttpServletRequest request) {
-		String authHeader = request.getHeader(AppHeader.AUTHORIZATION.getHeaderName());
+		String authHeader = request.getHeader(CustomHttpHeader.AUTHORIZATION.getHeaderName());
 		if(Boolean.FALSE.equals(CommonUtils.isEmptyData(authHeader)) && authHeader.startsWith("Bearer ")) {
 			return authHeader.substring(7);
 		}else {
