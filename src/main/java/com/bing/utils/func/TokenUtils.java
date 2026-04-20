@@ -3,7 +3,7 @@ import java.util.Arrays;
 
 import org.springframework.http.HttpHeaders;
 
-import com.bing.utils.eums.AppHeader;
+import com.bing.utils.eums.CustomHttpHeader;
 import com.bing.utils.eums.TokenType;
 
 import jakarta.servlet.http.Cookie;
