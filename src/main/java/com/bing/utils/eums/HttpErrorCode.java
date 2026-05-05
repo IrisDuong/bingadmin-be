@@ -1,7 +1,13 @@
 package com.bing.utils.eums;
 
 public enum HttpErrorCode {
+    // 400
+	DUPLICATED_DATA(409, "DUPLICATED_DATA"),
+
+    // 400
 	INVALID_REQUEST(400, "INVALID_REQUEST"),
+	
+    // 400
     VALIDATION_ERROR(400, "VALIDATION_ERROR"),
 
     // 401
