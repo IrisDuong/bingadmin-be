@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 public enum CodeType {
 
 	MULTI(1,"Multi"),
-	Single(2,"Single");
+	SINGLE(2,"Single");
 
 	private final Integer value;
 	private final String label;
