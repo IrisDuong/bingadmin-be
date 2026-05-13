@@ -1,6 +1,6 @@
 package com.bing.utils.service;
 
-public interface IDataConverter<E,D> {
-	D convertToDto(E e);
-	E convertToEntity(D d);
+public interface IDataConverter<E,RP,RQ> {
+	RP convertToResponseDto(E entity);
+	E convertToEntity(RQ request);
 }
