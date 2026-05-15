@@ -37,6 +37,7 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 		String refreshToken = jwtToken.createToken(email, TokenType.REFRESH_TOKEN);
 		TokenUtils.setCookie(response, TokenUtils.ATC, accessToken, 3600);
 		TokenUtils.setCookie(response, TokenUtils.RTC, refreshToken, 7200);
+		log.info(String.format("[AUTHENTICATION] :: accessToken = %s", accessToken));
 		
 		response.sendRedirect(urlFrontend);
 	}
