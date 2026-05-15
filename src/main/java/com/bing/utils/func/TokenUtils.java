@@ -21,14 +21,7 @@ public class TokenUtils {
 	}
 
 	public static void setCookie(HttpServletResponse response, String cookieName, String value, int maxAge) {
-		String cookie = """
-				%s=%s; 
-				Path=/; 
-				Max-Age=3600; 
-				HttpOnly; 
-				Secure; 
-				SameSite=None
-				""".format(cookieName, value);
+		String cookie = String.format("%s=%s; Path=/; MaxAge=3600; HttpOnly; Secure; SameSite=None", cookieName, value);
 		log.info(String.format("[AUTHENTICATION] :: cookie  = %s", cookie));
 		response.setHeader(HttpHeaders.SET_COOKIE, cookie);
 	}
