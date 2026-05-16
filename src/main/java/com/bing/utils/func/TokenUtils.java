@@ -2,6 +2,7 @@ package com.bing.utils.func;
 import java.util.Arrays;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 
 import com.bing.utils.eums.CustomHttpHeader;
 import com.bing.utils.eums.TokenType;
@@ -19,11 +20,20 @@ public class TokenUtils {
 	}
 
 	public static void setCookie(HttpServletResponse response, String cookieName, String value, int maxAge) {
-		Cookie cookie = new Cookie(cookieName, value);
-		cookie.setPath("/");
-		cookie.setHttpOnly(true);
-		cookie.setSecure(true);
-		cookie.setMaxAge(maxAge);
-		response.addCookie(cookie);
+//		Cookie cookie = new Cookie(cookieName, value);
+//		cookie.setPath("/");
+//		cookie.setHttpOnly(true);
+//		cookie.setSecure(true);
+//		cookie.setMaxAge(maxAge);
+//		response.addCookie(cookie);
+		
+		ResponseCookie cookie = ResponseCookie.from(cookieName, value)
+				.httpOnly(true)
+				.secure(false)
+				.path("/")
+				.maxAge(maxAge)
+				.sameSite("None")
+				.build();
+		response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 	}
 }
