@@ -63,7 +63,7 @@ public class SecurityConfig {
 		http.cors(cors->cors.configurationSource(corsConfigurationSource()))
 		    .csrf(csrf->csrf.disable())
 		    .authorizeHttpRequests(auth-> auth
-		    		.requestMatchers("/login","/oauth2/**").permitAll()
+		    		.requestMatchers("/login","/oauth2/**","/test/**").permitAll()
 		    		.anyRequest().authenticated()
 		    )
 		    .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
