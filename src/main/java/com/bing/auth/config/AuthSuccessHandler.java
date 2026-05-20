@@ -1,6 +1,8 @@
 package com.bing.auth.config;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -31,10 +33,16 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
 		OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+		
 		log.info(String.format("[AUTHENTICATION] :: oAuth2User.getName()  = %s", oAuth2User.getName()));
-		String email = oAuth2User.getAttribute("email");
-		String accessToken = jwtToken.createToken(email, TokenType.ACCESS_TOKEN);
-		String refreshToken = jwtToken.createToken(email, TokenType.REFRESH_TOKEN);
+		
+		Map<String, String> authenAttributes = new HashMap<String, String>();
+		authenAttributes.put("email", oAuth2User.getAttribute("email"));
+		authenAttributes.put("name", oAuth2User.getAttribute("name"));
+		authenAttributes.put("picture", oAuth2User.getAttribute("picture"));
+		
+		String accessToken = jwtToken.createToken(authenAttributes, TokenType.ACCESS_TOKEN);
+		String refreshToken = jwtToken.createToken(authenAttributes, TokenType.REFRESH_TOKEN);
 		TokenUtils.setCookie(response, TokenUtils.ATC, accessToken, 3600);
 		TokenUtils.setCookie(response, TokenUtils.RTC, refreshToken, 7200);
 		

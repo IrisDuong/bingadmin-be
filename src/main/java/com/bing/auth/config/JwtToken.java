@@ -2,6 +2,7 @@ package com.bing.auth.config;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Map;
 import java.util.function.Function;
 
 import javax.security.sasl.AuthenticationException;
@@ -47,10 +48,13 @@ public class JwtToken {
 		};
 	}
 	
-	public String createToken(String sub, TokenType tokenType) {
+	public String createToken(Map<String, String> authenAttributes, TokenType tokenType) {
 		long exp = tokenType == TokenType.ACCESS_TOKEN ? accessTokenExp : refreshTokenExp;
+		Claims claims = Jwts.claims().setSubject(authenAttributes.get("email"));
+		claims.put("name", authenAttributes.get("name"));
+		claims.put("picture", authenAttributes.get("picture"));
 		return Jwts.builder()
-				.setSubject(sub)
+				.setClaims(claims)
 				.setIssuedAt(new Date())
 				.setExpiration(new Date(System.currentTimeMillis() + exp))
 				.signWith(keys(tokenType))
