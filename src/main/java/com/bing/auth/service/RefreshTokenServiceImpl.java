@@ -100,17 +100,17 @@ public class RefreshTokenServiceImpl {
 		redisService.delete(key);
 	}
 
-	public void cachingValidRefreshToken(TokenDTO tokenDto,Object validToken) {
+	private void cachingValidRefreshToken(TokenDTO tokenDto,Object validToken) {
 		String key = String.format(VALID_RT_KEY_PREFIX, tokenDto.getEmail(),tokenDto.getDeviceId());
 		redisService.set(key, validToken, tokenDto.getRemainingRefreshTokenExpiry());
 	}
 
-	public void cachingUsedRefreshToken(TokenDTO tokenDto,Object usedToken) {
+	private void cachingUsedRefreshToken(TokenDTO tokenDto,Object usedToken) {
 		String key = String.format(BLACKLIST_RT_KEY_PREFIX, tokenDto.getEmail(),tokenDto.getDeviceId());
 		redisService.set(key, new Object[] {usedToken}, tokenDto.getRemainingRefreshTokenExpiry());
 	}
 	
-	public Object getCachingRefreshToken(String prefix,TokenDTO tokenDto) {
+	private Object getCachingRefreshToken(String prefix,TokenDTO tokenDto) {
 		String key = String.format(prefix, tokenDto.getEmail(),tokenDto.getDeviceId());
 		return redisService.get(key);
 	}

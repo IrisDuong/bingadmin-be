@@ -41,7 +41,6 @@ public class SecurityConfig {
 	private final AuthExceptionHandler authExceptionHandler;
 	private final TokenResolver tokenResolver;
 	private final TokenAuthProvider tokenAuthProvider;
-	private final RefreshTokenServiceImpl refreshTokenServiceImpl;
 
 	@Value("${URL_FRONTEND}")
 	String urlFrontend;
