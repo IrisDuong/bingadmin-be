@@ -1,6 +1,8 @@
 package com.bing.auth.config;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
@@ -8,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.bing.utils.eums.CustomHttpHeader;
 import com.bing.utils.func.CommonUtils;
-import com.bing.utils.func.TokenUtils;
+import com.bing.utils.func.CookieUtils;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,13 +24,7 @@ public class TokenResolver implements BearerTokenResolver{
 		if(Boolean.FALSE.equals(CommonUtils.isEmptyData(authHeader)) && authHeader.startsWith("Bearer ")) {
 			return authHeader.substring(7);
 		}else {
-			return Optional.ofNullable(request.getCookies())
-					.map(Arrays::stream)
-					.orElse(null)
-					.filter(cookie-> TokenUtils.ATC.equals(cookie.getName()))
-					.findFirst()
-					.map(Cookie::getValue)
-					.orElse(null);
+			return CookieUtils.getCookieValue(request, CookieUtils.ATC);
 		}
 	}
 
