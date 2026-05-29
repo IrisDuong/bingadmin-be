@@ -2,16 +2,12 @@ package com.bing.auth.config;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-
-import javax.security.sasl.AuthenticationException;
-
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
-
-import com.bing.utils.eums.TokenType;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -40,43 +36,47 @@ public class JwtToken {
 	@Value("${app.sec.jwt.rt.exp}")
 	long refreshTokenExp;
 	
-	private Key keys(TokenType tokenType) {
-		return switch(tokenType) {
-		case ACCESS_TOKEN -> Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessTokenSecretKey));
-		case REFRESH_TOKEN -> Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshTokenSecretKey));
-		default -> throw new IllegalArgumentException("Token type is invalid");
-		};
+	private Key keys() {
+		return Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessTokenSecretKey));
 	}
 	
-	public String createToken(Map<String, String> authenAttributes, TokenType tokenType) {
-		long exp = tokenType == TokenType.ACCESS_TOKEN ? accessTokenExp : refreshTokenExp;
-		Claims claims = Jwts.claims().setSubject(authenAttributes.get("email"));
-		claims.put("name", authenAttributes.get("name"));
-		claims.put("picture", authenAttributes.get("picture"));
+	public String generateAccessToken(Map<String, Object> attr) {
+		Claims claims = Jwts.claims().setSubject((String)attr.get("email"));
+		claims.put("name", attr.get("name"));
+		claims.put("picture", attr.get("picture"));
 		return Jwts.builder()
 				.setClaims(claims)
 				.setIssuedAt(new Date())
-				.setExpiration(new Date(System.currentTimeMillis() + exp))
-				.signWith(keys(tokenType))
+				.setExpiration(new Date(System.currentTimeMillis() + accessTokenExp))
+				.signWith(keys())
 				.compact();
 	}
 	
+	public String generateAccessToken(OAuth2User oAuth2User) {
+		Map<String, Object> attributes = new HashMap<String, Object>();
+		attributes.put("name", oAuth2User.getAttribute("name"));
+		attributes.put("picture", oAuth2User.getAttribute("picture"));
+		attributes.put("email", oAuth2User.getAttribute("email"));
+		return generateAccessToken(attributes);
+		
+	}
 	public <T> T getClaim(String token, Function<Claims, T> claimsResover) {
 		final Claims claims = extractAllClaims(token);
 		return claimsResover.apply(claims);
 	}
+	
 	public Claims extractAllClaims(String token) {
 		return 	Jwts.parserBuilder()
-				.setSigningKey(keys(TokenType.ACCESS_TOKEN))
+				.setSigningKey(keys())
 				.build()
 				.parseClaimsJws(token)
 				.getBody();
 	}
 	
-	public boolean validateToken(String token, TokenType tokenType) {
+	public boolean validateToken(String token) {
 		try {
 			Jwts.parserBuilder()
-			.setSigningKey(keys(tokenType))
+			.setSigningKey(keys())
 			.build()
 			.parseClaimsJws(token);
 			return true;

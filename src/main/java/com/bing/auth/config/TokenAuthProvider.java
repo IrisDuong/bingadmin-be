@@ -36,12 +36,14 @@ public class TokenAuthProvider implements AuthenticationProvider{
 	@Override
 	public @Nullable Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		String token = (String) authentication.getCredentials();
-		if(Boolean.FALSE.equals(CommonUtils.isEmptyData(token)) && jwtToken.validateToken(token, TokenType.ACCESS_TOKEN)) {
+		if(Boolean.FALSE.equals(CommonUtils.isEmptyData(token)) && jwtToken.validateToken(token)) {
 			Claims claims = jwtToken.extractAllClaims(token);
 			String email = claims.getSubject();
 			String name = claims.get("name",String.class);
 			String picture = claims.get("picture", String.class);
+			
 			List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+			
 			Map<String, Object> attributes = new HashMap<String, Object>();
 			attributes.put("email", email);
 			attributes.put("name", name);
