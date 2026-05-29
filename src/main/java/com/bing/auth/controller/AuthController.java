@@ -1,5 +1,6 @@
 package com.bing.auth.controller;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bing.auth.config.JwtToken;
+import com.bing.auth.dto.AuthenticatedUserDTO;
 import com.bing.auth.dto.TokenDTO;
 import com.bing.auth.service.RefreshTokenServiceImpl;
 import com.bing.usermgmt.dto.UserAppDTO;
@@ -42,7 +44,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
-	private final RefreshTokenServiceImpl tokenServiceImpl;
+	private final RefreshTokenServiceImpl refreshTokenServiceImpl;
 	private final JwtToken jwtToken;
 	private final UserAppService userAppService;
 
@@ -52,17 +54,17 @@ public class AuthController {
 	@Value("${app.sec.jwt.at.exp}")
 	long accessTokenExp;
 	
+	@Value("${URL_FRONTEND}")
+	String urlFrontend;
+	
 	@GetMapping("/me")
-	public ResponseEntity<ApiResponse<AuthenticatedUser>> getAuthenticatedUser(@AuthenticationPrincipal OAuth2User oAuth2User) {
+	public ResponseEntity<ApiResponse<AuthenticatedUserDTO>> getAuthenticatedUser(@AuthenticationPrincipal OAuth2User oAuth2User) {
 		if (Boolean.FALSE.equals(CommonUtils.isEmptyData(oAuth2User))) {
-			String name = oAuth2User.getAttribute("name");
-			String email = oAuth2User.getAttribute("email");
-			String picture = oAuth2User.getAttribute("picture");
-			AuthenticatedUser authenticatedUser = AuthenticatedUser.builder()
-					.name(name)
-					.email(email)
-					.phoneNo("")
-					.picture(picture)
+			AuthenticatedUserDTO authenticatedUser = AuthenticatedUserDTO.builder()
+					.firstName(oAuth2User.getAttribute("family_name"))
+					.lastName(oAuth2User.getAttribute("given_name"))
+					.email(oAuth2User.getAttribute("email"))
+					.picture(oAuth2User.getAttribute("picture"))
 					.build();
 			return ApiUtils.buildApiResponse(authenticatedUser, HttpStatus.OK, "Logged User found");
 	    }else {
@@ -73,7 +75,7 @@ public class AuthController {
 	@PostMapping("/refresh-token")
 	public ResponseEntity<ApiResponse<TokenDTO.Response>> refreshToken(
 			@CookieValue(name = "RTC", required = false) String incommingRefreshToken,
-			@RequestHeader(name = "X-User-Id", required = false) String email,
+			@RequestHeader(name = "x-email", required = false) String email,
 			HttpServletResponse response
 	){
 		if(Optional.ofNullable(incommingRefreshToken).isPresent()) {
@@ -83,7 +85,7 @@ public class AuthController {
 						.email(email)
 						.deviceId("hp01")
 						.build();
-				String newRefreshToken = tokenServiceImpl.rotateToken(tokenDTO, incommingRefreshToken);
+				String newRefreshToken = refreshTokenServiceImpl.rotateToken(tokenDTO, incommingRefreshToken);
 				
 
 
@@ -108,5 +110,19 @@ public class AuthController {
 				return ApiUtils.buildApiResponse(tokenResponse, HttpStatus.OK, "Refresh token successfully");
 		}
 		throw new BaseException(HttpErrorCode.INVALID_REQUEST);
+	}
+	
+	@PostMapping("/logout")
+	public void logout(@AuthenticationPrincipal OAuth2User oAuth2User, HttpServletResponse response) throws IOException {
+		String email = oAuth2User.getAttribute("email");
+		TokenDTO tokenDTO = TokenDTO.builder()
+				.email(email)
+				.deviceId("hp01")
+				.build();
+		refreshTokenServiceImpl.revokeValidRefreshToken(tokenDTO);
+		
+		CookieUtils.setCookie(response, CookieUtils.RTC, null, 0);
+		CookieUtils.setCookie(response, CookieUtils.ATC, null, 0);
+		response.sendRedirect(urlFrontend);
 	}
 }
